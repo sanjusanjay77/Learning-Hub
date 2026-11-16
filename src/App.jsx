@@ -2,6 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Activity, BookOpen, BrainCircuit, Check, CheckCircle2, ChevronDown, CircleHelp, Clock3, Cloud, FileText, Flame, FolderOpen, GraduationCap, LayoutDashboard, Library, LogOut, Menu, Moon, PlayCircle, Plus, Search, Settings, Sun, Target, Trash2, Trophy, Upload, Youtube, X } from 'lucide-react';
 import { roadmap, quizzes } from './data';
+import {
+  FeatureManager,
+  AnalyticsPage,
+  FocusPage
+} from "./features/FeaturePages";
 
 const url = import.meta.env.VITE_SUPABASE_URL;
 const anon = import.meta.env.VITE_SUPABASE_ANON_KEY;
