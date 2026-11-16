@@ -56,3 +56,105 @@ export const quizzes = {
     {q:'What is EDA?',o:['Exploratory Data Analysis','External Data Access','Encoded Data Algorithm','Estimated Dataset Average'],a:0,e:'EDA helps understand data through summaries and visualizations.'}
   ]
 };
+
+
+// Random question generator for all AIML roadmap subjects
+
+function shuffleQuestions(items) {
+  const result = [...items];
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
+function createQuestion(question, correctAnswer, wrongAnswers, explanation) {
+  const options = shuffleQuestions([
+    correctAnswer,
+    ...shuffleQuestions(wrongAnswers).slice(0, 3)
+  ]);
+
+  return {
+    q: question,
+    o: options,
+    a: options.indexOf(correctAnswer),
+    e: explanation
+  };
+}
+
+export function generateQuiz(subject, count = 10) {
+  const subjectData = roadmap.find(item => item.name === subject);
+
+  if (!subjectData) {
+    return quizzes[subject] || [];
+  }
+
+  const allSubjects = roadmap.map(item => item.name);
+
+  const allTopics = roadmap.flatMap(item =>
+    item.topics.map(topic => ({
+      topic,
+      subject: item.name
+    }))
+  );
+
+  const otherTopics = allTopics
+    .filter(item => item.subject !== subject)
+    .map(item => item.topic);
+
+  const otherSubjects = allSubjects.filter(item => item !== subject);
+
+  const generatedQuestions = [];
+
+  // Generate questions from every topic in the selected subject
+  subjectData.topics.forEach(topic => {
+    const topicOptions = shuffleQuestions(otherTopics).slice(0, 3);
+
+    generatedQuestions.push(
+      createQuestion(
+        `Which of these topics belongs to ${subject}?`,
+        topic,
+        topicOptions,
+        `${topic} is included in the ${subject} learning roadmap.`
+      )
+    );
+
+    const subjectOptions = shuffleQuestions(otherSubjects).slice(0, 3);
+
+    generatedQuestions.push(
+      createQuestion(
+        `The topic "${topic}" is mainly associated with which subject?`,
+        subject,
+        subjectOptions,
+        `${topic} is part of ${subject}.`
+      )
+    );
+  });
+
+  // Include your original manually written questions
+  const originalQuestions = quizzes[subject] || [];
+
+  const questionPool = shuffleQuestions([
+    ...originalQuestions,
+    ...generatedQuestions
+  ]);
+
+  // Return a fresh randomized set
+  const result = [];
+
+  while (result.length < count && questionPool.length > 0) {
+    if (result.length < questionPool.length) {
+      result.push(questionPool[result.length]);
+    } else {
+      const extra = shuffleQuestions(questionPool);
+      result.push(extra[0]);
+      questionPool.push(extra[0]);
+    }
+  }
+
+  return shuffleQuestions(result);
+}
+
